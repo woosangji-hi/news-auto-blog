@@ -48,8 +48,10 @@ jobs:
 
       - name: Install
         run: |
-          # 한글 글꼴 (복붙 키트 그림용). 미러가 불안정할 때가 있어 3번 재시도, 실패해도 글 발행은 계속
-          for i in 1 2 3; do sudo apt-get update -qq && sudo apt-get install -y -qq --fix-missing fonts-nanum && break || sleep 15; done || true
+          # 한글 글꼴 (복붙 키트 그림용) — Google Fonts 저장소의 나눔고딕(OFL)
+          mkdir -p fonts
+          curl -fsSL -o fonts/NanumGothic-Regular.ttf https://raw.githubusercontent.com/google/fonts/main/ofl/nanumgothic/NanumGothic-Regular.ttf || true
+          curl -fsSL -o fonts/NanumGothic-Bold.ttf https://raw.githubusercontent.com/google/fonts/main/ofl/nanumgothic/NanumGothic-Bold.ttf || true
           pip install -r requirements.txt
           npm install -g @anthropic-ai/claude-code
 

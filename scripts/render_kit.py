@@ -40,9 +40,9 @@ ACCENT = "#E8A33D"
 SERIES = ["#1F4E8C", "#E8A33D", "#2F9E7A", "#C2410C", "#7C3AED"]
 
 FONT_CANDIDATES = {
-    "regular": ["/usr/share/fonts/truetype/nanum/NanumGothic.ttf", "C:/Windows/Fonts/malgun.ttf",
+    "regular": [str(ROOT / "fonts" / "NanumGothic-Regular.ttf"), "/usr/share/fonts/truetype/nanum/NanumGothic.ttf", "C:/Windows/Fonts/malgun.ttf",
                 "/System/Library/Fonts/AppleSDGothicNeo.ttc"],
-    "bold": ["/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf", "C:/Windows/Fonts/malgunbd.ttf",
+    "bold": [str(ROOT / "fonts" / "NanumGothic-Bold.ttf"), "/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf", "C:/Windows/Fonts/malgunbd.ttf",
              "/System/Library/Fonts/AppleSDGothicNeo.ttc"],
 }
 
@@ -57,6 +57,7 @@ def font_path(kind: str) -> str:
 def setup_matplotlib():
     reg = font_path("regular")
     font_manager.fontManager.addfont(reg)
+    font_manager.fontManager.addfont(font_path("bold"))
     name = font_manager.FontProperties(fname=reg).get_name()
     plt.rcParams.update({"font.family": name, "axes.unicode_minus": False})
 

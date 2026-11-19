@@ -19,32 +19,32 @@ sources:
   - name: 세계파이낸스 금융
     url: https://www.segyefn.com/views/rss/finance.xml
     category: economy
-    enabled: true
+    enabled: false   # 2026-11 인증서 오류로 꺼둠
 
   - name: 세계파이낸스 부동산
     url: https://www.segyefn.com/views/rss/property.xml
     category: economy
-    enabled: true
+    enabled: false   # 2026-11 인증서 오류로 꺼둠
 
   - name: 비즈니스포스트 금융
     url: https://www.businesspost.co.kr/rss/Article_4.xml
     category: economy
-    enabled: true
+    enabled: false   # 2026-11 봇 접근 차단(403)으로 꺼둠
 
   - name: 비즈니스포스트 시장과머니
     url: https://www.businesspost.co.kr/rss/Article_5.xml
     category: economy
-    enabled: true
+    enabled: false   # 2026-11 봇 접근 차단(403)으로 꺼둠
 
   - name: 비즈니스포스트 시민과경제
     url: https://www.businesspost.co.kr/rss/Article_6.xml
     category: society
-    enabled: true
+    enabled: false   # 2026-11 봇 접근 차단(403)으로 꺼둠
 
   - name: 비즈니스포스트 정치·사회
     url: https://www.businesspost.co.kr/rss/Article_7.xml
     category: society
-    enabled: true
+    enabled: false   # 2026-11 봇 접근 차단(403)으로 꺼둠
 
   # ── 공공기관 (1차 자료) ─────────────────────────────
   - name: 한국은행 의결사항
@@ -63,12 +63,22 @@ sources:
   - name: 연합뉴스 경제
     url: https://www.yna.co.kr/rss/economy.xml
     category: economy
-    enabled: false
+    enabled: true
 
   - name: 연합뉴스 사회
     url: https://www.yna.co.kr/rss/society.xml
     category: society
-    enabled: false
+    enabled: true
+
+  - name: 한국경제 경제
+    url: https://www.hankyung.com/feed/economy
+    category: economy
+    enabled: true
+
+  - name: 매일경제 경제
+    url: https://www.mk.co.kr/rss/30100041/
+    category: economy
+    enabled: true
 
   # 구글 뉴스 키워드 RSS (링크가 news.google.com 리다이렉트 주소로 나옴)
   - name: 구글뉴스 금리
