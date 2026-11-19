@@ -34,7 +34,8 @@ validate:
   naver:
     min_chars: 800
     max_chars: 4500
-    max_similarity_to_post: 0.35   # 사이트 글과 너무 비슷하면 네이버 유사문서 위험
+    max_similarity_to_post: 0.35
+    categories: ["경제", "시사", "오늘의 브리핑"]   # 네이버 블로그 메뉴 이름과 같게 (일상은 직접 쓰는 글용이라 제외)   # 사이트 글과 너무 비슷하면 네이버 유사문서 위험
   max_copy_chars: 25        # 기사 제목·요약과 연속으로 겹치는 글자 수 상한 (공백·문장부호 제외)
   allowed_extra_domains: [] # 출처 목록 외에 링크를 허용할 도메인 (예: ecos.bok.or.kr)
   banned_phrases:

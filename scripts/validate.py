@@ -159,6 +159,13 @@ def validate_naver(path: Path, batch: dict, cfg: dict, post_main: str) -> Report
     for tag in ("[제목]", "[태그]", "[본문]", "[출처]"):
         if tag not in raw:
             rep.err(f"구역 표시 누락: {tag}")
+    cats = nc.get("categories") or []
+    if cats:
+        m = re.search(r"\[카테고리\]\s*\n\s*(.+)", raw)
+        if not m:
+            rep.err("구역 표시 누락: [카테고리]")
+        elif m.group(1).strip() not in cats:
+            rep.err(f"카테고리 '{m.group(1).strip()}' 는 허용 목록 {cats} 에 없음")
     body = raw.split("[본문]", 1)[-1].split("[출처]", 1)[0]
     body = re.sub(r"^\[(?:대표이미지|표\d+|그래프\d+)\]\s*$", "", body, flags=re.M)
     sources_part = raw.split("[출처]", 1)[-1] if "[출처]" in raw else ""

@@ -66,7 +66,7 @@ def setup_matplotlib():
 def parse_draft(text: str) -> dict:
     parts, key = {}, None
     for line in text.splitlines():
-        m = re.fullmatch(r"\[(제목|태그|본문|출처)\]\s*", line.strip())
+        m = re.fullmatch(r"\[(제목|태그|카테고리|본문|출처)\]\s*", line.strip())
         if m:
             key = m.group(1)
             parts[key] = []
@@ -74,7 +74,8 @@ def parse_draft(text: str) -> dict:
         if key:
             parts[key].append(line)
     get = lambda k: "\n".join(parts.get(k, [])).strip()  # noqa: E731
-    return {"title": get("제목"), "tags": get("태그"), "body": get("본문"), "sources": get("출처")}
+    return {"title": get("제목"), "tags": get("태그"), "category": get("카테고리"),
+            "body": get("본문"), "sources": get("출처")}
 
 
 # ── 이미지 생성 ────────────────────────────────────────────
@@ -267,11 +268,14 @@ pre{white-space:pre-wrap;font:13px/1.6 ui-monospace,Consolas,monospace;margin:0}
 <li><b>제목 복사</b> → 제목 칸에 붙여넣기.</li>
 <li><b>본문 전체 복사</b> → 본문에 붙여넣기. 그림·표가 같이 들어갑니다.</li>
 <li>그림이 빠졌다면 아래 <b>이미지</b>에서 [복사] 후 그 자리에 붙여넣거나 [저장] 후 사진 첨부.</li>
+<li>발행 설정에서 <b>카테고리</b>를 아래 표시된 메뉴로 고릅니다.</li>
 <li>첫 문단에 내 생각 한두 줄을 더하고, <b>태그 복사</b> → 태그 칸에 붙여넣고 발행.</li>
 </ol></div>
 
 <div class="card"><p class="k">제목</p><div class="row"><span class="v" id="t">__TITLE__</span>
 <button data-copy-text="t">제목 복사</button></div></div>
+
+<div class="card"><p class="k">카테고리</p><span class="v"><b>__CATEGORY__</b></span></div>
 
 <div class="card"><p class="k">태그</p><div class="row"><span class="v" id="tags">__TAGS__</span>
 <button class="ghost" data-copy-text="tags">태그 복사</button></div></div>
@@ -354,6 +358,7 @@ def build(naver_path: Path, out_dir: Path, visuals_path: Path | None = None) -> 
     page = (PAGE.replace("__TITLE__", html.escape(draft["title"]))
             .replace("__STAMP__", html.escape(stamp))
             .replace("__TAGS__", html.escape(draft["tags"]))
+            .replace("__CATEGORY__", html.escape(draft["category"] or "오늘의 브리핑"))
             .replace("__SOURCES__", html.escape(draft["sources"]))
             .replace("__IMAGES__", imgs_html)
             .replace("__BODY__", body))
