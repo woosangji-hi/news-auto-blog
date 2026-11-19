@@ -1,0 +1,77 @@
+# 뉴스 수집 출처 목록
+# - enabled: false 인 항목은 주소를 직접 브라우저로 열어 확인한 뒤 true로 바꾸세요.
+# - 각 언론사 RSS 이용약관(대개 개인·비상업 이용 조건)을 확인하세요.
+#   이 프로젝트는 RSS를 "기사 발굴용 단서"로만 쓰고, 본문은 자체 문장으로 새로 씁니다.
+# - category: economy | society | policy  (글 구성에 사용)
+
+sources:
+  # ── 언론사 ─────────────────────────────────────────
+  - name: 세계일보 경제
+    url: https://www.segye.com/Articles/RSSList/segye_economy.xml
+    category: economy
+    enabled: true
+
+  - name: 세계일보 사회
+    url: https://www.segye.com/Articles/RSSList/segye_society.xml
+    category: society
+    enabled: true
+
+  - name: 세계파이낸스 금융
+    url: https://www.segyefn.com/views/rss/finance.xml
+    category: economy
+    enabled: true
+
+  - name: 세계파이낸스 부동산
+    url: https://www.segyefn.com/views/rss/property.xml
+    category: economy
+    enabled: true
+
+  - name: 비즈니스포스트 금융
+    url: https://www.businesspost.co.kr/rss/Article_4.xml
+    category: economy
+    enabled: true
+
+  - name: 비즈니스포스트 시장과머니
+    url: https://www.businesspost.co.kr/rss/Article_5.xml
+    category: economy
+    enabled: true
+
+  - name: 비즈니스포스트 시민과경제
+    url: https://www.businesspost.co.kr/rss/Article_6.xml
+    category: society
+    enabled: true
+
+  - name: 비즈니스포스트 정치·사회
+    url: https://www.businesspost.co.kr/rss/Article_7.xml
+    category: society
+    enabled: true
+
+  # ── 공공기관 (1차 자료) ─────────────────────────────
+  - name: 한국은행 의결사항
+    url: https://www.bok.or.kr/portal/bbs/P0000093/news.rss?menuNo=200789
+    category: policy
+    enabled: true
+
+  - name: 고용노동부 정책자료
+    url: https://www.moel.go.kr/rss/policy.do
+    category: policy
+    enabled: true
+
+  # ── 주소 확인 후 켜기 ───────────────────────────────
+  # 연합뉴스·한국경제·매일경제 등은 각 사이트의 RSS 안내 페이지에서
+  # 현재 주소를 확인한 뒤 아래 url을 고치고 enabled: true 로 바꾸세요.
+  - name: 연합뉴스 경제
+    url: https://www.yna.co.kr/rss/economy.xml
+    category: economy
+    enabled: false
+
+  - name: 연합뉴스 사회
+    url: https://www.yna.co.kr/rss/society.xml
+    category: society
+    enabled: false
+
+  # 구글 뉴스 키워드 RSS (링크가 news.google.com 리다이렉트 주소로 나옴)
+  - name: 구글뉴스 금리
+    url: https://news.google.com/rss/search?q=%EA%B8%B0%EC%A4%80%EA%B8%88%EB%A6%AC&hl=ko&gl=KR&ceid=KR:ko
+    category: economy
+    enabled: false

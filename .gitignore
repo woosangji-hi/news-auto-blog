@@ -1,0 +1,11 @@
+.env
+data/raw/
+logs/
+rejected/
+_site/
+site/_site/
+site/.jekyll-cache/
+__pycache__/
+*.pyc
+.venv/
+.DS_Store

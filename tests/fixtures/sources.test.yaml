@@ -1,0 +1,6 @@
+# 로컬 테스트용: 가상 피드 파일을 읽음 (인터넷 불필요)
+sources:
+  - name: 테스트 피드
+    url: tests/fixtures/sample_feed.xml
+    category: economy
+    enabled: true

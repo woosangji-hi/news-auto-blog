@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+  <title>테스트 피드 (가상 데이터)</title>
+  <link>https://news.example.com</link>
+  <description>로컬 테스트용 가상 기사</description>
+  <item>
+    <title>[가상] 한국은행, 기준금리 연 2.50%로 동결</title>
+    <link>https://news.example.com/economy/1001?utm_source=rss</link>
+    <description>한국은행 금융통화위원회는 이날 회의에서 기준금리를 현 수준으로 유지하기로 결정했다. 물가 상승률이 목표 수준에 근접했지만 가계부채 증가세를 지켜볼 필요가 있다고 밝혔다.</description>
+  </item>
+  <item>
+    <title>[가상] 10월 소비자물가 2.1% 상승…석 달 연속 2%대</title>
+    <link>https://news.example.com/economy/1002</link>
+    <description>통계청 발표에 따르면 10월 소비자물가지수는 전년 동월 대비 2.1% 올랐다. 농산물 가격은 내렸지만 외식 등 서비스 물가가 오름세를 이어갔다.</description>
+  </item>
+  <item>
+    <title>[가상] 수도권 아파트 거래량 전월 대비 12% 감소</title>
+    <link>https://news.example.com/economy/1003</link>
+    <description>대출 규제 강화 이후 수도권 아파트 매매 거래가 줄어든 것으로 나타났다. 전문가들은 연말까지 관망세가 이어질 것으로 내다봤다.</description>
+  </item>
+  <item>
+    <title>[가상] 원·달러 환율 1,380원대 마감</title>
+    <link>https://news.example.com/economy/1004</link>
+    <description>미국 국채 금리 상승 영향으로 달러 강세가 나타나며 원·달러 환율이 1,380원대에서 거래를 마쳤다.</description>
+  </item>
+  <item>
+    <title>[가상] 소상공인 정책자금 2차 접수 다음 주 시작</title>
+    <link>https://news.example.com/economy/1005</link>
+    <description>중소벤처기업부는 소상공인 정책자금 2차 접수를 다음 주부터 받는다고 밝혔다. 업력과 매출 요건을 충족하면 신청할 수 있다.</description>
+  </item>
+  <item>
+    <title>[가상] 고용노동부, 내년 최저임금 고시</title>
+    <link>https://news.example.com/society/2001</link>
+    <description>고용노동부는 내년도 최저임금을 확정 고시했다. 사업주는 변경된 금액을 근로자에게 알려야 한다.</description>
+  </item>
+  <item>
+    <title>[가상] 청년 월세 지원 신청 기간 연장</title>
+    <link>https://news.example.com/society/2002</link>
+    <description>정부가 청년 월세 특별지원 신청 기간을 한 달 연장한다고 밝혔다. 소득 요건을 충족하는 무주택 청년이 대상이다.</description>
+  </item>
+  <item>
+    <title>[가상] 겨울철 난방비 지원 대상 확대</title>
+    <link>https://news.example.com/society/2003</link>
+    <description>에너지바우처 지원 대상이 확대돼 더 많은 취약계층이 난방비 지원을 받을 수 있게 된다.</description>
+  </item>
+  <item>
+    <title>[가상] 오래된 기사 — 수집 기간 밖이라 제외되어야 함</title>
+    <link>https://news.example.com/old/9999</link>
+    <description>이 기사는 날짜가 오래되어 수집 대상에서 빠져야 합니다.</description>
+    <pubDate>Mon, 01 Jan 2024 09:00:00 +0900</pubDate>
+  </item>
+  <item>
+    <title>[포토] 제외 키워드 테스트</title>
+    <link>https://news.example.com/photo/1</link>
+    <description>제외 키워드가 들어간 기사</description>
+  </item>
+</channel>
+</rss>

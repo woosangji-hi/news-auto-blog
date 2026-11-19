@@ -1,0 +1,114 @@
+name: news-brief
+
+# 하루 3회 (GitHub cron은 UTC 기준 / 정각을 피해 7분)
+#   KST 07:07 = UTC 22:07 (전날)
+#   KST 12:07 = UTC 03:07
+#   KST 18:07 = UTC 09:07
+# GitHub 예약 실행은 혼잡 시 수 분~수십 분 늦어질 수 있습니다.
+on:
+  schedule:
+    - cron: "7 22 * * *"
+    - cron: "7 3 * * *"
+    - cron: "7 9 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "수집만 테스트 (Claude 호출 안 함)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: news-brief
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+    env:
+      TZ: Asia/Seoul
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq fonts-nanum
+          pip install -r requirements.txt
+          npm install -g @anthropic-ai/claude-code
+
+      - name: Run pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_MODEL: ${{ vars.CLAUDE_MODEL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            python scripts/pipeline.py --dry-run
+          else
+            python scripts/pipeline.py
+          fi
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-${{ github.run_id }}
+          path: |
+            logs/
+            rejected/
+            data/raw/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Commit
+        id: commit
+        run: |
+          git config user.name "news-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/_posts site/kit naver data/seen.json
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "변경 없음"
+          else
+            git commit -m "brief: $(date +%Y-%m-%d-%H%M)"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  # GITHUB_TOKEN으로 한 push는 다른 워크플로를 깨우지 않으므로 여기서 바로 배포
+  deploy:
+    needs: generate
+    if: needs.generate.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/configure-pages@v5
+      - uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./site
+          destination: ./_site
+      - uses: actions/upload-pages-artifact@v3
+      - id: deployment
+        uses: actions/deploy-pages@v4
