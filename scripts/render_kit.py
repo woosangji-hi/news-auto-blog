@@ -207,18 +207,19 @@ TH = "border:1px solid #CBD5E1;background:#13294B;color:#fff;padding:8px 12px;fo
 TD = "border:1px solid #CBD5E1;padding:8px 12px;text-align:center;"
 
 
-def html_table(spec: dict) -> str:
+def html_table(spec: dict, ph: str = "") -> str:
     head = "".join(f'<th style="{TH}">{html.escape(str(h))}</th>' for h in spec["headers"])
     body = "".join("<tr>" + "".join(f'<td style="{TD}">{html.escape(str(c))}</td>' for c in r) + "</tr>"
                    for r in spec["rows"])
     note = f'<p style="font-size:13px;color:#6B7280;margin:6px 0 20px;">{html.escape(spec.get("note", ""))}</p>'
     return (f'<p style="{P_STYLE}"><b>{html.escape(spec["title"])}</b></p>'
-            f'<table style="border-collapse:collapse;width:100%;margin:0 0 4px;"><thead><tr>{head}</tr></thead>'
+            f'<table data-ph="{html.escape(ph)}" style="border-collapse:collapse;width:100%;margin:0 0 4px;"><thead><tr>{head}</tr></thead>'
             f"<tbody>{body}</tbody></table>{note}")
 
 
-def img_tag(src: str, alt: str) -> str:
-    return f'<p style="text-align:center;margin:0 0 20px;"><img src="{src}" alt="{html.escape(alt)}" style="max-width:100%;"></p>'
+def img_tag(src: str, alt: str, ph: str = "") -> str:
+    return (f'<p style="text-align:center;margin:0 0 20px;"><img src="{src}" alt="{html.escape(alt)}" '
+            f'data-ph="{html.escape(ph or alt)}" style="max-width:100%;"></p>')
 
 
 def body_html(body: str, assets: dict) -> tuple[str, set]:
@@ -281,7 +282,9 @@ pre{white-space:pre-wrap;font:13px/1.6 ui-monospace,Consolas,monospace;margin:0}
 <button class="ghost" data-copy-text="tags">태그 복사</button></div></div>
 
 <div class="card"><div class="row" style="justify-content:space-between"><p class="k" style="margin:0">본문 (그림·표 포함)</p>
-<button id="copyPost">본문 전체 복사</button></div>
+<div class="row"><button id="copyPost">본문 전체 복사</button>
+<button class="ghost" id="copyPlain">글자만 복사 (휴대폰)</button></div></div>
+<p class="sub" style="margin:8px 0 0">휴대폰 블로그 앱에서는 그림이 같이 붙지 않을 수 있어요. 그때는 [글자만 복사] 후 아래 이미지를 저장해 [그래프1]·[표1] 자리에 첨부하세요.</p>
 <div id="post">__BODY__</div></div>
 
 <div class="card"><p class="k">이미지 (개별 복사·저장)</p><div class="imgs">__IMAGES__</div></div>
@@ -299,6 +302,14 @@ document.querySelectorAll('[data-copy-text]').forEach(b=>b.addEventListener('cli
 document.getElementById('copyPost').addEventListener('click',e=>{
   // 선택 후 복사: 브라우저가 서식·표·이미지 주소를 함께 클립보드에 넣는다
   selectNode(document.getElementById('post'));document.execCommand('copy');getSelection().removeAllRanges();flash(e.target,'복사됨 · 붙여넣기 하세요')
+});
+document.getElementById('copyPlain').addEventListener('click',async e=>{
+  // 그림 자리는 [그래프1] 같은 표시로 남겨 휴대폰에서 사진을 넣을 위치를 알 수 있게 한다
+  const clone=document.getElementById('post').cloneNode(true);
+  clone.querySelectorAll('img').forEach(i=>i.replaceWith('['+(i.dataset.ph||i.alt)+']'));
+  clone.querySelectorAll('table').forEach(t=>t.replaceWith('['+(t.dataset.ph||'표')+']'));
+  const txt=[...clone.childNodes].map(n=>(n.textContent||'').trim()).filter(Boolean).join('\n\n');
+  try{await navigator.clipboard.writeText(txt);flash(e.target,'복사됨')}catch(err){const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();flash(e.target,'복사됨')}
 });
 document.querySelectorAll('[data-copy-img]').forEach(b=>b.addEventListener('click',async()=>{
   try{const blob=await (await fetch(b.dataset.copyImg)).blob();
@@ -324,23 +335,23 @@ def build(naver_path: Path, out_dir: Path, visuals_path: Path | None = None) -> 
 
     cover = vis.get("cover", {})
     make_cover(out_dir / "cover.png", cover.get("headline") or draft["title"], cover.get("sub", ""),
-               cover.get("label", "오늘의 경제"), brand)
+               cover.get("label") or draft.get("category") or "오늘의 경제", brand)
     images.append(("cover.png", "대표 이미지"))
-    assets["대표이미지"] = img_tag("cover.png", "대표 이미지")
+    assets["대표이미지"] = img_tag("cover.png", "대표 이미지", "대표이미지")
 
     for i, spec in enumerate(vis.get("charts", []), 1):
         key = spec.get("id") or f"그래프{i}"
         fn = f"chart-{i}.png"
         make_chart(out_dir / fn, spec)
         images.append((fn, spec["title"]))
-        assets[key] = img_tag(fn, spec["title"])
+        assets[key] = img_tag(fn, spec["title"], key)
 
     for i, spec in enumerate(vis.get("tables", []), 1):
         key = spec.get("id") or f"표{i}"
         fn = f"table-{i}.png"
         make_table_png(out_dir / fn, spec)
         images.append((fn, spec["title"] + " (표 이미지)"))
-        assets[key] = html_table(spec)
+        assets[key] = html_table(spec, key)
 
     body, used = body_html(draft["body"], assets)
     if "대표이미지" not in used:

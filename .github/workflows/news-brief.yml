@@ -1,17 +1,24 @@
 name: news-brief
 
-# 하루 3회 (GitHub cron은 UTC 기준 / 정각을 피해 7분)
-#   KST 07:07 = UTC 22:07 (전날)
-#   KST 12:07 = UTC 03:07
-#   KST 18:07 = UTC 09:07
-# GitHub 예약 실행은 혼잡 시 수 분~수십 분 늦어질 수 있습니다.
+# 하루 4회. 발행 목표 시각보다 25분 일찍 시작 (GitHub 예약 실행은 혼잡 시 수십 분 늦어질 수 있음)
+# GitHub cron은 UTC 기준. 회차는 실행 시각(한국 시간)으로 settings.yaml 의 slots 에서 자동 선택.
+#   08:00 오늘의 브리핑  ← KST 07:35 = UTC 22:35 (전날)
+#   12:00 시사           ← KST 11:35 = UTC 02:35
+#   15:00 경제           ← KST 14:35 = UTC 05:35
+#   18:00 일상           ← KST 17:35 = UTC 08:35
 on:
   schedule:
-    - cron: "7 22 * * *"
-    - cron: "7 3 * * *"
-    - cron: "7 9 * * *"
+    - cron: "35 22 * * *"
+    - cron: "35 2 * * *"
+    - cron: "35 5 * * *"
+    - cron: "35 8 * * *"
   workflow_dispatch:
     inputs:
+      slot:
+        description: "회차 (auto = 지금 시각 기준)"
+        type: choice
+        options: [auto, brief, noon, afternoon, evening]
+        default: auto
       dry_run:
         description: "수집만 테스트 (Claude 호출 안 함)"
         type: boolean
@@ -63,9 +70,9 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           if [ "${{ inputs.dry_run }}" = "true" ]; then
-            python scripts/pipeline.py --dry-run
+            python scripts/pipeline.py --slot "${{ inputs.slot || 'auto' }}" --dry-run
           else
-            python scripts/pipeline.py
+            python scripts/pipeline.py --slot "${{ inputs.slot || 'auto' }}"
           fi
 
       - name: Upload logs
@@ -85,7 +92,7 @@ jobs:
         run: |
           git config user.name "news-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add site/_posts site/kit naver data/seen.json
+          git add site/_posts site/kit drafts data/seen.json
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "변경 없음"

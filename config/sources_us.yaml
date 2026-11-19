@@ -1,0 +1,27 @@
+# 08:00 오늘의 브리핑(간밤 미국 증시)용 출처
+# 지수·환율·금리 숫자는 scripts/market.py 가 따로 받습니다 (Yahoo Finance 차트 데이터).
+sources:
+  - name: 한국경제 증권
+    url: https://www.hankyung.com/feed/finance
+    category: market
+    enabled: true
+
+  - name: 한국경제 국제
+    url: https://www.hankyung.com/feed/international
+    category: market
+    enabled: true
+
+  - name: 연합뉴스 세계
+    url: https://www.yna.co.kr/rss/international.xml
+    category: market
+    enabled: true
+
+  - name: 연합뉴스 경제
+    url: https://www.yna.co.kr/rss/economy.xml
+    category: market
+    enabled: true
+
+  - name: 구글뉴스 뉴욕증시
+    url: https://news.google.com/rss/search?q=%EB%89%B4%EC%9A%95%EC%A6%9D%EC%8B%9C&hl=ko&gl=KR&ceid=KR:ko
+    category: market
+    enabled: true

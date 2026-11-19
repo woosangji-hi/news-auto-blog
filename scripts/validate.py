@@ -149,39 +149,39 @@ def validate_post(path: Path, batch: dict, cfg: dict) -> tuple[Report, str]:
     return rep, main_part
 
 
-def validate_naver(path: Path, batch: dict, cfg: dict, post_main: str) -> Report:
-    rep = Report(f"네이버 초안 {path.name}")
-    nc = cfg["naver"]
+def draft_body(raw: str) -> str:
+    body = raw.split("[본문]", 1)[-1].split("[출처]", 1)[0]
+    return re.sub(r"^\[(?:대표이미지|표\d+|그래프\d+)\]\s*$", "", body, flags=re.M)
+
+
+def validate_draft(path: Path, batch: dict, cfg: dict, limits: dict, category: str, post_main: str) -> Report:
+    rep = Report(f"초안 {path.name} ({category})")
     if not path.exists():
         rep.err("파일이 없음")
         return rep
     raw = path.read_text(encoding="utf-8")
-    for tag in ("[제목]", "[태그]", "[본문]", "[출처]"):
+    for tag in ("[제목]", "[태그]", "[카테고리]", "[본문]", "[출처]"):
         if tag not in raw:
             rep.err(f"구역 표시 누락: {tag}")
-    cats = nc.get("categories") or []
-    if cats:
-        m = re.search(r"\[카테고리\]\s*\n\s*(.+)", raw)
-        if not m:
-            rep.err("구역 표시 누락: [카테고리]")
-        elif m.group(1).strip() not in cats:
-            rep.err(f"카테고리 '{m.group(1).strip()}' 는 허용 목록 {cats} 에 없음")
-    body = raw.split("[본문]", 1)[-1].split("[출처]", 1)[0]
-    body = re.sub(r"^\[(?:대표이미지|표\d+|그래프\d+)\]\s*$", "", body, flags=re.M)
+    m = re.search(r"\[카테고리\]\s*\n\s*(.+)", raw)
+    if m and m.group(1).strip() != category:
+        rep.err(f"카테고리 '{m.group(1).strip()}' ≠ 지정된 '{category}'")
+    m = re.search(r"\[제목\]\s*\n\s*(.+)", raw)
+    if m and not 10 <= len(m.group(1).strip()) <= 50:
+        rep.err(f"제목 길이 {len(m.group(1).strip())}자 (허용 10~50)")
+    body = draft_body(raw)
     sources_part = raw.split("[출처]", 1)[-1] if "[출처]" in raw else ""
 
     n = char_count(body)
-    if not nc["min_chars"] <= n <= nc["max_chars"]:
-        rep.err(f"본문 {n}자 (허용 {nc['min_chars']}~{nc['max_chars']})")
+    if not limits["min_chars"] <= n <= limits["max_chars"]:
+        rep.err(f"본문 {n}자 (허용 {limits['min_chars']}~{limits['max_chars']})")
     if post_main:
         sim = jaccard(body, post_main)
-        if sim > nc["max_similarity_to_post"]:
-            rep.err(f"사이트 글과 유사도 {sim:.2f} > {nc['max_similarity_to_post']} (네이버 유사문서 위험)")
-        else:
-            rep.warn(f"사이트 글과 유사도 {sim:.2f}")
+        if sim > cfg["naver"]["max_similarity_to_post"]:
+            rep.err(f"사이트 글과 유사도 {sim:.2f} > {cfg['naver']['max_similarity_to_post']}")
 
     urls = {norm_url(i["link"]) for i in batch["items"]}
-    check_links(rep, raw, sources_part, urls, cfg.get("allowed_extra_domains", []), 2)
+    check_links(rep, raw, sources_part, urls, cfg.get("allowed_extra_domains", []), limits.get("min_sources", 2))
     check_copy(rep, body, batch["items"], cfg["max_copy_chars"])
     check_banned(rep, raw, cfg.get("banned_phrases", []))
     return rep
@@ -237,23 +237,63 @@ def validate_visuals(path: Path, naver_raw: str) -> Report:
 
 
 def main() -> int:
+    """--draft "경로|카테고리|종류" 를 여러 번 줄 수 있다. 종류: us_brief | topic"""
     ap = argparse.ArgumentParser()
-    ap.add_argument("--post", required=True)
-    ap.add_argument("--naver", required=True)
     ap.add_argument("--batch", required=True)
+    ap.add_argument("--post", help="사이트 글 (site_post: true 일 때)")
+    ap.add_argument("--draft", action="append", default=[], help='"경로|카테고리|종류"')
+    ap.add_argument("--report-json", help="초안별 통과 여부를 JSON으로 저장")
     args = ap.parse_args()
 
-    cfg = settings()["validate"]
+    allcfg = settings()
+    cfg, dcfg = allcfg["validate"], allcfg.get("drafts", {})
     batch = json.loads(Path(args.batch).read_text(encoding="utf-8"))
-    post_rep, post_main = validate_post(Path(args.post), batch, cfg)
-    naver_rep = validate_naver(Path(args.naver), batch, cfg, post_main)
-    naver_path = Path(args.naver)
-    vis_rep = validate_visuals(naver_path.with_suffix(".visuals.json"),
-                               naver_path.read_text(encoding="utf-8") if naver_path.exists() else "")
-    post_rep.print()
-    naver_rep.print()
-    vis_rep.print()
-    return 1 if (post_rep.errors or naver_rep.errors or vis_rep.errors) else 0
+    reports, failed = [], []
+
+    post_main = ""
+    if args.post:
+        post_rep, post_main = validate_post(Path(args.post), batch, cfg)
+        reports.append(post_rep)
+        if post_rep.errors:
+            failed.append(args.post)
+
+    bodies = {}
+    for spec in args.draft:
+        path_s, category, kind = spec.split("|")
+        path = Path(path_s)
+        limits = dcfg.get(kind) or {"min_chars": cfg["naver"]["min_chars"], "max_chars": cfg["naver"]["max_chars"]}
+        rep = validate_draft(path, batch, cfg, limits, category, post_main)
+        raw = path.read_text(encoding="utf-8") if path.exists() else ""
+        vis = validate_visuals(path.with_suffix(".visuals.json"), raw)
+        rep.errors += [f"[시각자료] {e}" for e in vis.errors]
+        rep.warnings += [f"[시각자료] {w}" for w in vis.warnings]
+        bodies[path_s] = draft_body(raw)
+        reports.append(rep)
+
+    # 같은 회차 초안끼리 (네이버판 ↔ 티스토리판) 유사도
+    limit = dcfg.get("max_similarity_between", 0.30)
+    keys = list(bodies)
+    for i in range(len(keys)):
+        for j in range(i + 1, len(keys)):
+            sim = jaccard(bodies[keys[i]], bodies[keys[j]])
+            rep_i = next(r for r in reports if Path(keys[i]).name in r.name)
+            rep_j = next(r for r in reports if Path(keys[j]).name in r.name)
+            if sim > limit:
+                msg = f"{Path(keys[j]).name} 과(와) 유사도 {sim:.2f} > {limit} — 문장·구성을 더 다르게"
+                rep_i.err(msg)
+                rep_j.err(f"{Path(keys[i]).name} 과(와) 유사도 {sim:.2f} > {limit} — 문장·구성을 더 다르게")
+            else:
+                rep_i.warn(f"{Path(keys[j]).name} 과(와) 유사도 {sim:.2f}")
+
+    for r in reports:
+        r.print()
+    for spec in args.draft:
+        path_s = spec.split("|")[0]
+        if any(Path(path_s).name in r.name and r.errors for r in reports):
+            failed.append(path_s)
+    if args.report_json:
+        Path(args.report_json).write_text(json.dumps({"failed": failed}, ensure_ascii=False), encoding="utf-8")
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":

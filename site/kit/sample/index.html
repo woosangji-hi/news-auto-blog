@@ -43,8 +43,10 @@ pre{white-space:pre-wrap;font:13px/1.6 ui-monospace,Consolas,monospace;margin:0}
 <button class="ghost" data-copy-text="tags">태그 복사</button></div></div>
 
 <div class="card"><div class="row" style="justify-content:space-between"><p class="k" style="margin:0">본문 (그림·표 포함)</p>
-<button id="copyPost">본문 전체 복사</button></div>
-<div id="post"><p style="text-align:center;margin:0 0 20px;"><img src="cover.png" alt="대표 이미지" style="max-width:100%;"></p>
+<div class="row"><button id="copyPost">본문 전체 복사</button>
+<button class="ghost" id="copyPlain">글자만 복사 (휴대폰)</button></div></div>
+<p class="sub" style="margin:8px 0 0">휴대폰 블로그 앱에서는 그림이 같이 붙지 않을 수 있어요. 그때는 [글자만 복사] 후 아래 이미지를 저장해 [그래프1]·[표1] 자리에 첨부하세요.</p>
+<div id="post"><p style="text-align:center;margin:0 0 20px;"><img src="cover.png" alt="대표 이미지" data-ph="대표이미지" style="max-width:100%;"></p>
 <p style="font-size:16px;line-height:1.8;margin:0 0 16px;">※ 형식 참고용 예시이며 내용은 테스트용 가상 데이터입니다.</p>
 <p style="font-size:16px;line-height:1.8;margin:0 0 16px;">오늘 아침 가장 많이 받은 질문은 하나였어요. &quot;금리 안 내렸다는데, 그럼 제 대출은요?&quot;</p>
 <p style="font-size:16px;line-height:1.8;margin:0 0 16px;">결론부터 말씀드리면, 변동금리로 돈을 빌린 분들은 당분간 지금과 비슷한 이자를 내게 될 가능성이 높습니다. 한국은행이 정책금리를 2.50%에서 손대지 않았거든요. 물가는 많이 잡혔지만 가계 빚이 늘어나는 속도가 아직 걱정된다는 게 이유입니다.</p>
@@ -52,11 +54,11 @@ pre{white-space:pre-wrap;font:13px/1.6 ui-monospace,Consolas,monospace;margin:0}
 <p style="font-size:16px;line-height:1.8;margin:0 0 16px;">&quot;조금만 기다리면 금리가 내려가겠지&quot; 하며 대출 갈아타기를 미뤄 온 분이라면, 지금 조건과 중도상환수수료를 한 번 계산해 보는 게 좋겠습니다. 인하 시점이 생각보다 늦어질 수 있기 때문이에요. 다음 회의 전에 나오는 가계대출 통계가 꽤 중요한 힌트가 될 겁니다.</p>
 <p style="font-size:19px;font-weight:bold;margin:28px 0 12px;">▶ 물가 2%대인데 왜 장보기는 그대로 비쌀까</p>
 <p style="font-size:16px;line-height:1.8;margin:0 0 16px;">10월 물가 상승률은 2.1%였습니다. 숫자만 보면 안정적이죠. 그런데 채소값은 내려도 점심값, 미용실, 배달비 같은 서비스 가격은 계속 오르고 있어요. 그래서 통계와 체감이 따로 노는 겁니다. 카페나 식당을 운영하시는 분들도 재료비보다 인건비와 임대료 부담이 더 크다고 말씀하시는 이유이기도 합니다.</p>
-<p style="text-align:center;margin:0 0 20px;"><img src="chart-1.png" alt="소비자물가 상승률 추이 (예시)" style="max-width:100%;"></p>
+<p style="text-align:center;margin:0 0 20px;"><img src="chart-1.png" alt="소비자물가 상승률 추이 (예시)" data-ph="그래프1" style="max-width:100%;"></p>
 <p style="font-size:19px;font-weight:bold;margin:28px 0 12px;">▶ 놓치면 아까운 지원 두 가지</p>
 <p style="font-size:16px;line-height:1.8;margin:0 0 16px;">첫째, 청년 월세 특별지원 접수가 한 달 연장됐습니다. 무주택이고 소득 기준에 들어가는 청년이라면 다시 기회가 생긴 셈이에요. 부모님 소득 기준도 함께 보니 사는 지역 지자체 안내를 꼭 확인하세요.</p>
 <p style="font-size:16px;line-height:1.8;margin:0 0 16px;">둘째, 겨울 난방비를 돕는 에너지바우처 대상이 넓어졌습니다. 작년에 대상이 아니었더라도 올해는 해당될 수 있으니 주민센터에 문의해 보시길 권합니다.</p>
-<p style="font-size:16px;line-height:1.8;margin:0 0 16px;"><b>놓치면 아까운 지원 정리 (예시)</b></p><table style="border-collapse:collapse;width:100%;margin:0 0 4px;"><thead><tr><th style="border:1px solid #CBD5E1;background:#13294B;color:#fff;padding:8px 12px;font-weight:bold;">지원</th><th style="border:1px solid #CBD5E1;background:#13294B;color:#fff;padding:8px 12px;font-weight:bold;">대상</th><th style="border:1px solid #CBD5E1;background:#13294B;color:#fff;padding:8px 12px;font-weight:bold;">확인할 곳</th></tr></thead><tbody><tr><td style="border:1px solid #CBD5E1;padding:8px 12px;text-align:center;">청년 월세 특별지원</td><td style="border:1px solid #CBD5E1;padding:8px 12px;text-align:center;">무주택 청년(소득 기준)</td><td style="border:1px solid #CBD5E1;padding:8px 12px;text-align:center;">지자체 안내</td></tr><tr><td style="border:1px solid #CBD5E1;padding:8px 12px;text-align:center;">에너지바우처</td><td style="border:1px solid #CBD5E1;padding:8px 12px;text-align:center;">대상 확대</td><td style="border:1px solid #CBD5E1;padding:8px 12px;text-align:center;">주민센터</td></tr></tbody></table><p style="font-size:13px;color:#6B7280;margin:6px 0 20px;">출처: 테스트용 가상 데이터</p>
+<p style="font-size:16px;line-height:1.8;margin:0 0 16px;"><b>놓치면 아까운 지원 정리 (예시)</b></p><table data-ph="표1" style="border-collapse:collapse;width:100%;margin:0 0 4px;"><thead><tr><th style="border:1px solid #CBD5E1;background:#13294B;color:#fff;padding:8px 12px;font-weight:bold;">지원</th><th style="border:1px solid #CBD5E1;background:#13294B;color:#fff;padding:8px 12px;font-weight:bold;">대상</th><th style="border:1px solid #CBD5E1;background:#13294B;color:#fff;padding:8px 12px;font-weight:bold;">확인할 곳</th></tr></thead><tbody><tr><td style="border:1px solid #CBD5E1;padding:8px 12px;text-align:center;">청년 월세 특별지원</td><td style="border:1px solid #CBD5E1;padding:8px 12px;text-align:center;">무주택 청년(소득 기준)</td><td style="border:1px solid #CBD5E1;padding:8px 12px;text-align:center;">지자체 안내</td></tr><tr><td style="border:1px solid #CBD5E1;padding:8px 12px;text-align:center;">에너지바우처</td><td style="border:1px solid #CBD5E1;padding:8px 12px;text-align:center;">대상 확대</td><td style="border:1px solid #CBD5E1;padding:8px 12px;text-align:center;">주민센터</td></tr></tbody></table><p style="font-size:13px;color:#6B7280;margin:6px 0 20px;">출처: 테스트용 가상 데이터</p>
 <p style="font-size:19px;font-weight:bold;margin:28px 0 12px;">▶ 사장님들은 이것도 체크</p>
 <p style="font-size:16px;line-height:1.8;margin:0 0 16px;">내년 최저임금이 확정 고시됐습니다. 직원을 두고 계시다면 바뀐 금액을 알리고 근로계약서를 미리 정리해 두는 게 안전합니다.</p>
 <p style="font-size:19px;font-weight:bold;margin:28px 0 12px;">▶ 환율도 잠깐 볼까요</p>
@@ -84,6 +86,16 @@ document.querySelectorAll('[data-copy-text]').forEach(b=>b.addEventListener('cli
 document.getElementById('copyPost').addEventListener('click',e=>{
   // 선택 후 복사: 브라우저가 서식·표·이미지 주소를 함께 클립보드에 넣는다
   selectNode(document.getElementById('post'));document.execCommand('copy');getSelection().removeAllRanges();flash(e.target,'복사됨 · 붙여넣기 하세요')
+});
+document.getElementById('copyPlain').addEventListener('click',async e=>{
+  // 그림 자리는 [그래프1] 같은 표시로 남겨 휴대폰에서 사진을 넣을 위치를 알 수 있게 한다
+  const clone=document.getElementById('post').cloneNode(true);
+  clone.querySelectorAll('img').forEach(i=>i.replaceWith('['+(i.dataset.ph||i.alt)+']'));
+  clone.querySelectorAll('table').forEach(t=>t.replaceWith('['+(t.dataset.ph||'표')+']'));
+  const txt=[...clone.childNodes].map(n=>(n.textContent||'').trim()).filter(Boolean).join('
+
+');
+  try{await navigator.clipboard.writeText(txt);flash(e.target,'복사됨')}catch(err){const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();flash(e.target,'복사됨')}
 });
 document.querySelectorAll('[data-copy-img]').forEach(b=>b.addEventListener('click',async()=>{
   try{const blob=await (await fetch(b.dataset.copyImg)).blob();

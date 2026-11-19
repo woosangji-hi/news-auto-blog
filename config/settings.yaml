@@ -1,5 +1,45 @@
 # 파이프라인 동작 설정
 
+# ── 회차 (한국 시간) ─────────────────────────────────────
+# GitHub 예약 실행은 20~30분 늦을 수 있어 각 회차보다 25분 일찍 시작합니다 (news-brief.yml cron).
+# 실행 시각(시)이 hours 범위에 들면 그 회차로 처리합니다. 편수를 늘리려면 outputs 에 줄을 추가하세요.
+site_post: false            # true 로 바꾸면 자체 사이트(GitHub Pages)에도 별도 글을 자동 발행
+slots:
+  brief:                    # 08:00 오늘의 브리핑 (간밤 미국 증시)
+    hours: [5, 10]
+    kind: us_brief
+    sources: config/sources_us.yaml
+    outputs:
+      - {platform: naver, category: 오늘의 브리핑}
+      - {platform: tistory, category: 오늘의 브리핑}
+  noon:                     # 12:00 시사
+    hours: [10, 13]
+    kind: topic
+    sources: config/sources.yaml
+    outputs:
+      - {platform: naver, category: 시사}
+      - {platform: tistory, category: 시사}
+  afternoon:                # 15:00 경제
+    hours: [13, 16]
+    kind: topic
+    sources: config/sources.yaml
+    outputs:
+      - {platform: naver, category: 경제}
+      - {platform: tistory, category: 경제}
+  evening:                  # 18:00 일상 (생활 정보형 — 지어낸 개인 경험 금지)
+    hours: [16, 24]
+    kind: topic
+    sources: config/sources.yaml
+    outputs:
+      - {platform: naver, category: 일상}
+      - {platform: tistory, category: 일상}
+
+# 플랫폼·글 종류별 분량 (공백 제외 글자 수)
+drafts:
+  us_brief: {min_chars: 300, max_chars: 1600, min_sources: 2}
+  topic:    {min_chars: 800, max_chars: 4000, min_sources: 2}
+  max_similarity_between: 0.30   # 같은 회차 네이버판·티스토리판끼리 유사도 상한
+
 collect:
   window_hours: 12          # 최근 몇 시간 이내 기사만 사용
   min_items: 6              # 새 기사가 이보다 적으면 이번 회차는 건너뜀
@@ -37,7 +77,7 @@ validate:
     max_similarity_to_post: 0.35
     categories: ["경제", "시사", "오늘의 브리핑"]   # 네이버 블로그 메뉴 이름과 같게 (일상은 직접 쓰는 글용이라 제외)   # 사이트 글과 너무 비슷하면 네이버 유사문서 위험
   max_copy_chars: 25        # 기사 제목·요약과 연속으로 겹치는 글자 수 상한 (공백·문장부호 제외)
-  allowed_extra_domains: [] # 출처 목록 외에 링크를 허용할 도메인 (예: ecos.bok.or.kr)
+  allowed_extra_domains: [finance.yahoo.com] # 출처 목록 외에 링크를 허용할 도메인 (시세 출처 등)
   banned_phrases:
     - "매수하세요"
     - "매도하세요"
