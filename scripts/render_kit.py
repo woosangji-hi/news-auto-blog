@@ -308,7 +308,7 @@ document.getElementById('copyPlain').addEventListener('click',async e=>{
   const clone=document.getElementById('post').cloneNode(true);
   clone.querySelectorAll('img').forEach(i=>i.replaceWith('['+(i.dataset.ph||i.alt)+']'));
   clone.querySelectorAll('table').forEach(t=>t.replaceWith('['+(t.dataset.ph||'표')+']'));
-  const txt=[...clone.childNodes].map(n=>(n.textContent||'').trim()).filter(Boolean).join('\n\n');
+  const txt=[...clone.childNodes].map(n=>(n.textContent||'').trim()).filter(Boolean).join('\\n\\n');
   try{await navigator.clipboard.writeText(txt);flash(e.target,'복사됨')}catch(err){const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();flash(e.target,'복사됨')}
 });
 document.querySelectorAll('[data-copy-img]').forEach(b=>b.addEventListener('click',async()=>{
