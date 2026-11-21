@@ -1,0 +1,50 @@
+[제목]
+미국 증시 주간 마감 정리, 반도체지수 12.5% 하락과 PCE 일정
+
+[태그]
+#미국증시 #뉴욕증시전망 #나스닥 #필라델피아반도체지수 #AI버블 #PCE #미국국채금리 #원달러환율
+
+[카테고리]
+오늘의 브리핑
+
+[본문]
+핵심 요약: 11월 20일(현지시간) 뉴욕증시는 3대 지수가 모두 하락했고, 한 주 전체로도 반도체 중심의 큰 낙폭을 기록했습니다. 다음 주에는 미국 물가 지표 PCE가 방향을 가를 변수로 꼽힙니다.
+
+▶ 배경: 한 주 동안 이어진 하락
+16일부터 20일까지 5거래일 종가를 비교하면 지수 대부분이 계단식으로 내려왔습니다.
+필라델피아 반도체지수는 9,610.65에서 8,408.59로, 나스닥은 24,509.76에서 22,617.73으로 낮아졌습니다.
+
+▶ 핵심 내용: 20일 마감 수치
+S&P500은 6,910.39(전일 대비 -3.70%), 나스닥은 22,617.73(-5.28%), 다우는 48,147.33(-1.93%)에 마감했습니다.
+필라델피아 반도체지수는 8,408.59로 10.73% 하락해 낙폭이 가장 컸습니다.
+
+[표1]
+
+16일 종가 대비 하락률은 필라델피아 반도체 약 12.5%, 나스닥 약 7.7%, S&P500 약 6.8%, 다우 약 6.7%입니다. 시세 파일의 종가로 직접 계산한 값입니다.
+
+[그래프1]
+
+▶ 하락의 배경으로 거론된 요인
+국내 보도들은 AI 관련 대장주의 급락과 AI 투자의 수익성 논란을 주된 원인으로 짚었습니다.
+시장 전문가가 투자자 기대치의 조정을 피하기 어렵다고 진단했다는 보도와, 연준 인사가 금리를 더 올려야 한다는 취지로 발언했다는 보도도 함께 나왔습니다.
+
+▶ 금리·환율·유가
+미 국채 10년물 금리는 4.91%로 전일(5.05%)보다 0.14%포인트 낮아졌습니다.
+원·달러 환율은 1,334.79원으로 0.33% 올랐고, WTI 선물은 배럴당 83.98달러로 0.93% 상승했습니다.
+
+▶ 영향과 확인할 점
+다음 주(11월 23~27일) 뉴욕증시는 미국 인플레이션 지표에 좌우될 전망이라는 분석이 나옵니다.
+골드만삭스가 다음 주에도 매도세가 이어질 수 있다고 내다봤다는 보도도 있어, 월요일 국내 증시에서는 반도체 업종과 환율 흐름을 우선 점검할 필요가 있습니다.
+
+▶ 정리
+1. 20일 나스닥 -5.28%, 필라델피아 반도체 -10.73%로 3대 지수 모두 하락했습니다.
+2. 10년물 금리는 4.91%로 하락, 환율은 1,334.79원으로 소폭 상승했습니다.
+3. 다음 주 PCE 등 물가 지표와 AI 대장주 흐름이 증시 방향의 관건입니다.
+
+[출처]
+- 연합뉴스, [뉴욕증시-주간전망] AI 투매에 흔들린 월가…PCE 물가 분수령, https://www.yna.co.kr/view/AKR20261122004800009
+- 서울파이낸스, 골드만삭스, 다음주도 뉴욕증시 매도세 지속 전망···"패닉지수 9점", https://news.google.com/rss/articles/CBMiakFVX3lxTE04ZVV4NXBNSG9LMzQ3NFd3Z3Zib3k0WkpSLUswQ2JoQUJ6V21FMHZXaVlBLTVDZ09GazRJYjlPX2hrWXFpRWJKV2RiSTZWUlNHbG5ZS1loM3lzeHdIUGh6Z0ZtcDZZaWFhdUE?oc=5
+- 파이낸셜뉴스, 뉴욕증시 매도세, 5대 배경은…제러미 시걸 "기대치 조정 불가피", https://news.google.com/rss/articles/CBMiWkFVX3lxTE5NUWJZOHB1Z05ZeS15QTlUMEhzTlkzSmtFallGYlByc2ZsREw3UDd2QjZXbktsWk5mdlhNVFVGMEUwTnhXSmhScDllb3VzRlpac0FkdUxTRGVmZw?oc=5
+- 더스쿠프, 나스닥 올해 상승분 반납…미 연준 "금리 더 올려야", https://news.google.com/rss/articles/CBMibkFVX3lxTE1MLXlpVUNrRS1ZTDR3NUFPdTMxSVF3LUxoNGJXUFg4UUhDZW1rWkEtanpaNURkRnh3cEVRNlppOXJvRFNRTGw0T0pSNjg2Q2ZCT3VhRE9uR2xKaFlkVllUTlV3eWpLRTVzMTNQY2JB?oc=5
+- YTN, 수익성 시험대 오른 AI...대장주 추락에 뉴욕증시 '패닉', https://news.google.com/rss/articles/CBMiXkFVX3lxTE9MdEVmSUkzNGYwUnBPVHFIWUhzRjN6RWJfWV9wWm4wd1UybElRbVBPbVFkZC1xVWRWaFZNY2ZJay1sZmU2LWJtT3dLbG1NOFF5R0I5V0U3N3hieE9naWc?oc=5
+- 시세: Yahoo Finance
