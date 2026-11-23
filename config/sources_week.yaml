@@ -1,0 +1,12 @@
+# 월요일 오늘의 브리핑 전용 추가 출처 — 이번 주 국내·해외 주요 일정 기사
+# 이 기사들은 기사 목록에 합쳐져서 한국 일정(금통위, 수출입, 국내 물가, 주요 실적 발표 등)을 확인하는 데 쓰입니다.
+sources:
+  - name: 구글뉴스 이번주 금융일정
+    url: https://news.google.com/rss/search?q=%EC%9D%B4%EB%B2%88%EC%A3%BC+%EC%A3%BC%EC%9A%94+%EA%B8%88%EC%9C%B5%EC%9D%BC%EC%A0%95&hl=ko&gl=KR&ceid=KR:ko
+    category: calendar
+    enabled: true
+
+  - name: 구글뉴스 이번주 증시 일정
+    url: https://news.google.com/rss/search?q=%EC%9D%B4%EB%B2%88%EC%A3%BC+%EC%A6%9D%EC%8B%9C+%EC%9D%BC%EC%A0%95&hl=ko&gl=KR&ceid=KR:ko
+    category: calendar
+    enabled: true

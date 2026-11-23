@@ -1,33 +1,40 @@
 # 파이프라인 동작 설정
 
 # ── 회차 (한국 시간) ─────────────────────────────────────
-# GitHub 예약 실행은 20~30분 늦을 수 있어 각 회차보다 25분 일찍 시작합니다 (news-brief.yml cron).
+# GitHub 예약 실행은 40~80분씩 늦게 시작하는 일이 잦아서, 각 회차를 90분 일찍 시작해 글·그림·배포를 끝내 두고
+# 텔레그램 알림만 send_at 시각에 보냅니다 (news-brief.yml cron 참고).
 # 실행 시각(시)이 hours 범위에 들면 그 회차로 처리합니다. 편수를 늘리려면 outputs 에 줄을 추가하세요.
+# skip_weekdays: 쉬는 요일 (0=월 … 6=일)
 site_post: false            # true 로 바꾸면 자체 사이트(GitHub Pages)에도 별도 글을 자동 발행
 slots:
-  brief:                    # 08:00 오늘의 브리핑 (간밤 미국 증시)
+  brief:                    # 08:10 오늘의 브리핑 (간밤 미국 증시, 월요일엔 이번 주 주요 일정 추가)
     hours: [5, 10]
+    send_at: "08:10"
+    skip_weekdays: [6]      # 일요일은 쉼
     kind: us_brief
     sources: config/sources_us.yaml
     outputs:
       - {platform: naver, category: 오늘의 브리핑}
       - {platform: tistory, category: 오늘의 브리핑}
-  noon:                     # 12:00 시사
+  noon:                     # 12:10 시사
     hours: [10, 13]
+    send_at: "12:10"
     kind: topic
     sources: config/sources.yaml
     outputs:
       - {platform: naver, category: 시사}
       - {platform: tistory, category: 시사}
-  afternoon:                # 15:00 경제
+  afternoon:                # 15:10 경제
     hours: [13, 16]
+    send_at: "15:10"
     kind: topic
     sources: config/sources.yaml
     outputs:
       - {platform: naver, category: 경제}
       - {platform: tistory, category: 경제}
-  evening:                  # 18:00 일상 (생활 정보형 — 지어낸 개인 경험 금지)
+  evening:                  # 18:10 일상 (생활 정보형 — 지어낸 개인 경험 금지)
     hours: [16, 24]
+    send_at: "18:10"
     kind: topic
     sources: config/sources.yaml
     outputs:
@@ -36,7 +43,7 @@ slots:
 
 # 플랫폼·글 종류별 분량 (공백 제외 글자 수)
 drafts:
-  us_brief: {min_chars: 300, max_chars: 1600, min_sources: 2}
+  us_brief: {min_chars: 300, max_chars: 2200, min_sources: 2}
   topic:    {min_chars: 800, max_chars: 4000, min_sources: 2}
   max_similarity_between: 0.30   # 같은 회차 네이버판·티스토리판끼리 유사도 상한
 
@@ -55,6 +62,9 @@ collect:
     - "[게시판]"
     - "운세"
     - "광고"
+    # 다른 크리에이터의 유료·블로그 콘텐츠는 재료로 쓰지 않음 (구글뉴스 검색 결과에 섞여 나옴)
+    - "프리미엄콘텐츠"
+    - "블로그"
 
 claude:
   max_turns: 30
@@ -75,9 +85,9 @@ validate:
     min_chars: 800
     max_chars: 4500
     max_similarity_to_post: 0.35
-    categories: ["경제", "시사", "오늘의 브리핑"]   # 네이버 블로그 메뉴 이름과 같게 (일상은 직접 쓰는 글용이라 제외)   # 사이트 글과 너무 비슷하면 네이버 유사문서 위험
+    # (카테고리는 slots 의 outputs 에서 지정)
   max_copy_chars: 25        # 기사 제목·요약과 연속으로 겹치는 글자 수 상한 (공백·문장부호 제외)
-  allowed_extra_domains: [finance.yahoo.com] # 출처 목록 외에 링크를 허용할 도메인 (시세 출처 등)
+  allowed_extra_domains: [finance.yahoo.com, forexfactory.com] # 출처 목록 외에 링크를 허용할 도메인 (시세 출처 등)
   banned_phrases:
     - "매수하세요"
     - "매도하세요"

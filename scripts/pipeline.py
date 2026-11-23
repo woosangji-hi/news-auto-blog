@@ -79,6 +79,7 @@ def main() -> int:
     ap.add_argument("--git-push", action="store_true")
     ap.add_argument("--skip-notify", action="store_true")
     ap.add_argument("--sources", help="출처 파일 강제 지정 (테스트용)")
+    ap.add_argument("--outbox", help="알림을 바로 보내지 않고 이 파일에 남김 (GitHub Actions: 배포 후 정해진 시각에 send.py 로 전송)")
     args = ap.parse_args()
 
     cfg = settings()
@@ -92,6 +93,10 @@ def main() -> int:
     kind = slot["kind"]
     stamp = now.strftime("%Y-%m-%d-%H%M")
     print(f"== {SLOT_TITLE.get(slot_name, slot_name)} 회차 ({stamp})")
+    if now.weekday() in slot.get("skip_weekdays", []) and args.slot == "auto":
+        print(f"{'월화수목금토일'[now.weekday()]}요일은 이 회차를 쉽니다 (settings.yaml skip_weekdays).")
+        return 0
+    weekly = kind == "us_brief" and now.weekday() == 0  # 월요일: 이번 주 주요 일정 추가
 
     raw_dir = ROOT / "data" / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
@@ -109,6 +114,22 @@ def main() -> int:
     if kind == "us_brief":
         market = raw_dir / f"{stamp}-market.json"
         run([PY, "scripts/market.py", "--out", market])
+    calendar = None
+    if weekly:
+        calendar = raw_dir / f"{stamp}-calendar.json"
+        run([PY, "scripts/calendar_week.py", "--out", calendar])
+        # 이번 주 일정 기사(지난 3일치)를 기사 목록에 합쳐서, 한국 일정도 출처 링크와 함께 확인할 수 있게 한다
+        week_batch = raw_dir / f"{stamp}-week.json"
+        run([PY, "scripts/collect.py", "fetch", "--out", week_batch, "--window-hours", "72",
+             "--sources", str(ROOT / "config" / "sources_week.yaml")])
+        if week_batch.exists():
+            main_b = json.loads(batch.read_text(encoding="utf-8"))
+            have = {i["id"] for i in main_b["items"]}
+            extra = [i for i in json.loads(week_batch.read_text(encoding="utf-8"))["items"] if i["id"] not in have]
+            main_b["items"] += extra
+            main_b["count"] = len(main_b["items"])
+            batch.write_text(json.dumps(main_b, ensure_ascii=False, indent=2), encoding="utf-8")
+            print(f"이번 주 일정 기사 {len(extra)}건 추가")
     if args.dry_run:
         print(f"[dry-run] 수집 결과: {batch}")
         return 0
@@ -129,6 +150,16 @@ def main() -> int:
     topic_rule = TOPIC_RULES["us_brief"] if kind == "us_brief" else TOPIC_RULES.get(drafts[0][2], "")
     market_line = (f"- 시세 파일: `{market.relative_to(ROOT).as_posix()}` (ok=false 면 시세 없이 기사 숫자만 사용. "
                    "출처 표기: Yahoo Finance)") if market else ""
+    if calendar:
+        market_line += (
+            f"\n- **월요일 특별 구성** — 이번 주 경제 일정 파일: `{calendar.relative_to(ROOT).as_posix()}` (한국 시간, ★★★/★★ 중요도)\n"
+            "  - 두 초안 모두 평소 브리핑(금요일 미국장 마감)은 6~8줄로 줄이고, `▶ 이번 주 주요 일정` 소제목을 추가한다.\n"
+            "  - `[표2]` = 이번 주 주요 일정표. 열: 날짜(요일) | 시간(한국) | 국가 | 발표 | 중요도. 시간순 정렬, 최대 15행.\n"
+            "    미국 지표 이름은 한국어로 (예: Core PCE Price Index m/m → 근원 PCE 물가지수(전월비), Prelim GDP q/q → GDP 속보치(전분기비)).\n"
+            "  - 한국 일정(금통위, 수출입동향, 소비자물가, 주요 기업 실적·행사 등)은 기사 목록의 '이번주 주요 일정' 기사를 WebFetch로 열어\n"
+            "    **기사에서 확인된 것만** 넣는다. 날짜·시간이 기사에 없으면 시간은 '미정'. 중요도는 금통위·물가·수출입 ★★★, 그 밖 ★★.\n"
+            "  - 표 note: `출처: Forex Factory 경제 캘린더, <확인한 언론사>`. 본문에 ★★★ 일정 2~3개를 한 줄씩 왜 중요한지 설명.\n"
+            "  - 일정 파일 ok=false 면 기사에서 확인된 일정만으로 표를 만들고, 그것도 없으면 일정 표는 뺀다.")
 
     prompt = (ROOT / "prompts" / "draft.md").read_text(encoding="utf-8")
     for k, v in {
@@ -235,7 +266,8 @@ def main() -> int:
     # 4) 사용한 기사 기록 (다음 회차 중복 방지)
     run([PY, "scripts/collect.py", "mark", "--batch", batch])
 
-    # 5) 복붙 키트 + 6) 알림
+    # 5) 복붙 키트 + 6) 알림 (--outbox 를 주면 바로 보내지 않고 목록만 남김 → send.py 가 정해진 시각에 전송)
+    messages = []
     for rel, platform, category in passed:
         stem = Path(rel).stem
         kit_url = ""
@@ -243,10 +275,19 @@ def main() -> int:
             kit_url = f"{base_url()}/kit/{stem}/"
         else:
             print(f"발행 키트 생성 실패 — {rel} 은 텍스트만 전송합니다")
-        if not args.skip_notify:
-            run([PY, "scripts/notify.py", "--file", rel, "--platform", PLATFORM_KO[platform],
-                 "--category", category, "--slot", SLOT_TITLE.get(slot_name, slot_name),
-                 "--kit-dir", str(ROOT / "site" / "kit" / stem), "--kit-url", kit_url])
+        messages.append(["--file", rel, "--platform", PLATFORM_KO[platform], "--category", category,
+                         "--slot", SLOT_TITLE.get(slot_name, slot_name),
+                         "--kit-dir", f"site/kit/{stem}", "--kit-url", kit_url])
+    send_at = slot.get("send_at")  # "08:10"
+    send_at_iso = (now.replace(hour=int(send_at[:2]), minute=int(send_at[3:]), second=0, microsecond=0).isoformat()
+                   if send_at else now.isoformat())
+    if args.outbox:
+        Path(args.outbox).write_text(json.dumps({"send_at": send_at_iso, "messages": messages}, ensure_ascii=False),
+                                     encoding="utf-8")
+        print(f"알림 {len(messages)}건 대기 → {send_at_iso} 에 전송 ({args.outbox})")
+    elif not args.skip_notify:
+        for m in messages:
+            run([PY, "scripts/notify.py", *m])
 
     # 7) (개인 서버용) 커밋·푸시
     if args.git_push:

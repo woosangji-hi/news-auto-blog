@@ -1,17 +1,18 @@
 name: news-brief
 
-# 하루 4회. 발행 목표 시각보다 25분 일찍 시작 (GitHub 예약 실행은 혼잡 시 수십 분 늦어질 수 있음)
+# 하루 4회. GitHub 예약 실행은 40~80분씩 늦게 시작하는 일이 잦아서(2026-11 실측),
+# 목표 시각보다 90분 일찍 예약 → 글 작성·배포를 끝내 두고 → send 잡이 목표 시각(:10)에 텔레그램 전송.
 # GitHub cron은 UTC 기준. 회차는 실행 시각(한국 시간)으로 settings.yaml 의 slots 에서 자동 선택.
-#   08:00 오늘의 브리핑  ← KST 07:35 = UTC 22:35 (전날)
-#   12:00 시사           ← KST 11:35 = UTC 02:35
-#   15:00 경제           ← KST 14:35 = UTC 05:35
-#   18:00 일상           ← KST 17:35 = UTC 08:35
+#   08:10 오늘의 브리핑 ← KST 06:40 = UTC 21:40 (전날). 일요일은 쉼 → UTC 요일 0-5(일~금) = KST 월~토
+#   12:10 시사          ← KST 10:40 = UTC 01:40
+#   15:10 경제          ← KST 13:40 = UTC 04:40
+#   18:10 일상          ← KST 16:40 = UTC 07:40
 on:
   schedule:
-    - cron: "35 22 * * *"
-    - cron: "35 2 * * *"
-    - cron: "35 5 * * *"
-    - cron: "35 8 * * *"
+    - cron: "40 21 * * 0-5"
+    - cron: "40 1 * * *"
+    - cron: "40 4 * * *"
+    - cron: "40 7 * * *"
   workflow_dispatch:
     inputs:
       slot:
@@ -39,6 +40,7 @@ jobs:
     timeout-minutes: 30
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
+      has_outbox: ${{ steps.outbox.outputs.has_outbox }}
     env:
       TZ: Asia/Seoul
     steps:
@@ -66,14 +68,26 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CLAUDE_MODEL: ${{ vars.CLAUDE_MODEL }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           if [ "${{ inputs.dry_run }}" = "true" ]; then
             python scripts/pipeline.py --slot "${{ inputs.slot || 'auto' }}" --dry-run
           else
-            python scripts/pipeline.py --slot "${{ inputs.slot || 'auto' }}"
+            python scripts/pipeline.py --slot "${{ inputs.slot || 'auto' }}" --outbox outbox.json
           fi
+
+      - name: Keep outbox
+        id: outbox
+        if: always()
+        run: |
+          if [ -f outbox.json ]; then echo "has_outbox=true" >> "$GITHUB_OUTPUT"; else echo "has_outbox=false" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Upload outbox
+        if: always() && steps.outbox.outputs.has_outbox == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: outbox-${{ github.run_id }}
+          path: outbox.json
+          retention-days: 2
 
       - name: Upload logs
         if: always()
@@ -122,3 +136,29 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # 정해진 시각(settings.yaml 의 send_at, 예: 08:10)까지 기다렸다가 텔레그램 전송.
+  # 배포가 실패해도 글은 보낸다 (PC용 복붙 페이지 링크만 늦게 열릴 수 있음).
+  send:
+    needs: [generate, deploy]
+    if: always() && needs.generate.outputs.has_outbox == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 130
+    env:
+      TZ: Asia/Seoul
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests PyYAML
+      - uses: actions/download-artifact@v4
+        with:
+          name: outbox-${{ github.run_id }}
+      - name: Send at target time
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/send.py --outbox outbox.json

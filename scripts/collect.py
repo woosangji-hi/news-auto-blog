@@ -69,7 +69,7 @@ def cmd_fetch(args) -> int:
     sources = load_yaml(Path(args.sources))["sources"]
     seen = load_seen()
     now = dt.datetime.now(KST)
-    since = now - dt.timedelta(hours=cfg["window_hours"])
+    since = now - dt.timedelta(hours=args.window_hours or cfg["window_hours"])
     excludes = cfg.get("exclude_keywords", [])
 
     items, titles = [], set()
@@ -123,7 +123,7 @@ def cmd_fetch(args) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps({
         "generated_at": now.isoformat(),
-        "window_hours": cfg["window_hours"],
+        "window_hours": args.window_hours or cfg["window_hours"],
         "count": len(items),
         "items": items,
     }, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -155,6 +155,7 @@ def main() -> int:
     f = sub.add_parser("fetch")
     f.add_argument("--out", required=True)
     f.add_argument("--sources", default=str(ROOT / "config" / "sources.yaml"))
+    f.add_argument("--window-hours", type=int, help="settings.yaml 의 window_hours 대신 사용")
     m = sub.add_parser("mark")
     m.add_argument("--batch", required=True)
     args = ap.parse_args()
