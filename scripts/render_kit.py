@@ -145,9 +145,15 @@ def make_chart(out: Path, spec: dict):
                         xytext=(0, 12), ha="center", fontsize=14, color=c, fontweight="bold")
     elif kind == "hbar":
         vals = series[0]["values"]
-        bars = ax.barh(labels[::-1], vals[::-1], color=SERIES[0], height=0.6)
+        bars = ax.barh(labels[::-1], vals[::-1], height=0.6,
+                       color=[SERIES[0] if v >= 0 else SERIES[3] for v in vals[::-1]])
         for b, v in zip(bars, vals[::-1]):
-            ax.text(b.get_width(), b.get_y() + b.get_height() / 2, " " + fmt(v), va="center", fontsize=14)
+            ax.text(b.get_width(), b.get_y() + b.get_height() / 2, (" " + fmt(v)) if v >= 0 else (fmt(v) + " "),
+                    va="center", ha="left" if v >= 0 else "right", fontsize=14)
+        if min(vals) < 0:
+            lo, hi = ax.get_xlim()
+            ax.set_xlim(lo - (hi - lo) * 0.08, hi)
+            ax.axvline(0, color=INK, lw=1)
     else:  # bar (여러 계열이면 묶음 막대)
         n = len(series)
         w = 0.8 / n
@@ -178,14 +184,22 @@ def make_chart(out: Path, spec: dict):
 
 def make_table_png(out: Path, spec: dict):
     headers, rows = spec["headers"], spec["rows"]
-    h = 1.2 + 0.55 * (len(rows) + 1)
-    fig, ax = plt.subplots(figsize=(10.8, h), dpi=100)
+    row_h = 0.42  # 한 줄 높이(인치). 표가 그림을 꽉 채우게 해서 위아래 빈 공간을 없앤다
+    top, bottom = 0.75, 0.45
+    h = top + bottom + row_h * (len(rows) + 1)
+    fig = plt.figure(figsize=(10.8, h), dpi=100)
+    ax = fig.add_axes((0.015, bottom / h, 0.97, row_h * (len(rows) + 1) / h))
     ax.axis("off")
-    ax.set_title(spec["title"], fontsize=20, fontweight="bold", color=INK, loc="left")
-    t = ax.table(cellText=[[str(c) for c in r] for r in rows], colLabels=headers, loc="center", cellLoc="center")
+    fig.text(0.015, 1 - 0.45 / h, spec["title"], fontsize=20, fontweight="bold", color=INK, va="center")
+    # 열 너비는 글자 길이에 맞춰 나눈다 (한글은 2칸으로 계산) — 긴 상품명이 칸을 넘지 않게
+    def w(s):
+        return sum(2 if ord(ch) > 0x2E7F else 1 for ch in str(s)) + 2
+    widths = [max([w(headers[j])] + [w(r[j]) for r in rows]) for j in range(len(headers))]
+    total = sum(widths)
+    t = ax.table(cellText=[[str(c) for c in r] for r in rows], colLabels=headers, cellLoc="center",
+                 colWidths=[x / total for x in widths], bbox=(0, 0, 1, 1))
     t.auto_set_font_size(False)
-    t.set_fontsize(14)
-    t.scale(1, 2.0)
+    t.set_fontsize(14 if total <= 70 else max(10, int(14 * 70 / total)))
     for (r, _c), cell in t.get_celld().items():
         cell.set_edgecolor(LINE)
         if r == 0:
@@ -194,8 +208,7 @@ def make_table_png(out: Path, spec: dict):
         elif r % 2 == 0:
             cell.set_facecolor("#F5F7FA")
     if spec.get("note"):
-        fig.text(0.01, 0.02, spec["note"], fontsize=11, color=MUTED)
-    fig.tight_layout()
+        fig.text(0.015, 0.18 / h, spec["note"], fontsize=11, color=MUTED, va="center")
     fig.savefig(out)
     plt.close(fig)
 
@@ -232,6 +245,10 @@ def body_html(body: str, assets: dict) -> tuple[str, set]:
             out.append(assets[m.group(1)])
         elif line.startswith("▶"):
             out.append(f'<p style="{H_STYLE}">{html.escape(line)}</p>')
+        elif re.match(r"#{2,3} ", line):  # ## 소제목 / ### 작은 소제목 → h2/h3 (티스토리 검색용)
+            lv = 2 if line.startswith("## ") else 3
+            size = "21px" if lv == 2 else "18px"
+            out.append(f'<h{lv} style="{H_STYLE}font-size:{size};">{html.escape(line.lstrip("#").strip())}</h{lv}>')
         elif line:
             out.append(f'<p style="{P_STYLE}">' + "<br>".join(html.escape(x) for x in line.splitlines()) + "</p>")
     return "\n".join(out), used

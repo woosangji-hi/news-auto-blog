@@ -1,0 +1,13 @@
+{
+  "send_at": "2026-11-30T08:30:00+09:00",
+  "messages": [
+    ["--file", "drafts/2026-11-30-0830-etf-naver.txt", "--platform", "네이버", "--category", "경제",
+     "--slot", "특별편 · 한국·미국 지수 ETF 정리",
+     "--kit-dir", "site/kit/2026-11-30-0830-etf-naver",
+     "--kit-url", "https://woosangji-hi.github.io/news-auto-blog/kit/2026-11-30-0830-etf-naver/"],
+    ["--file", "drafts/2026-11-30-0830-etf-tistory.txt", "--platform", "티스토리", "--category", "경제",
+     "--slot", "특별편 · 한국·미국 지수 ETF 정리",
+     "--kit-dir", "site/kit/2026-11-30-0830-etf-tistory",
+     "--kit-url", "https://woosangji-hi.github.io/news-auto-blog/kit/2026-11-30-0830-etf-tistory/"]
+  ]
+}
